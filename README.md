@@ -4,4 +4,5 @@
  Finished assignments:
  
  Labs: 1.
+ 
  Projects:
