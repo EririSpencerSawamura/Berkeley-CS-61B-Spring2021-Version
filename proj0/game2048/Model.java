@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author Ren Wang
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -106,16 +106,73 @@ public class Model extends Observable {
      *    value, then the leading two tiles in the direction of motion merge,
      *    and the trailing tile does not.
      * */
+
+    /** A helper method for tilt() to get the row of tile right above the current one.
+     * If there is no tile above, return null.*/
+    public Tile getNorthTile(Tile t) {
+        for (int row_runner = t.row() + 1; row_runner < board.size(); row_runner++) {
+            if (board.tile(t.col(), row_runner) != null) {
+                return board.tile(t.col(), row_runner);
+            }
+        }
+        return null;
+    }
+
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
 
         // TODO: Modify this.board (and perhaps this.score) to account
-
+        // First set the viewing perspective to the direction of the tilt operation.
+        // After the tilt operation, set it back to north.
+        board.setViewingPerspective(side);
+        // Iterate over each colum.
+        for (int col_runner = 0; col_runner < board.size(); col_runner++) {
+            // We set an indicator for the merge process in the last movement.
+            // At the beginning of every colum, the merge indicator is always false.
+            boolean merged = false;
+            // The Iteration starts at the second row from the top.
+            for (int row_runner = board.size() - 2; row_runner > -1; row_runner--) {
+                // We initiate the current tile.
+                Tile t = board.tile(col_runner, row_runner);
+                if ( t != null) {
+                    Tile s = getNorthTile(t);
+                    // If there is no tile above t, move t to the northern end of this colum.
+                    if (s == null) {
+                        board.move(col_runner, board.size() - 1, t);
+                        merged = false;
+                        changed = true;
+                    }
+                    // If the value of the tile above is different from the value of the
+                    // current tile, then they should NOT merge, and the current tile will
+                    // move to the place right south to the tile above.
+                    else if (s.value() != t.value()) {
+                        board.move(col_runner, s.row() - 1, t);
+                        merged = false;
+                        changed = true;
+                    }
+                    // If the two tiles have the same value, check the merged indicator:
+                    // If false, the two merge; if true, they do NOT merge, and the current tile
+                    // will move to the place right south to the tile above.
+                    else if (merged) {
+                        board.move(col_runner, s.row() - 1, t);
+                        merged = false;
+                        changed = true;
+                    } else {
+                        if (2 * t.value() > score) {
+                            score = 2 * t.value();
+                        }
+                        board.move(col_runner, s.row(), t);
+                        merged = true;
+                        changed = true;
+                    }
+                }
+            }
+        }
+        board.setViewingPerspective(Side.NORTH);
 
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
-
         checkGameOver();
         if (changed) {
             setChanged();
@@ -187,13 +244,13 @@ public class Model extends Observable {
                 if (b.tile(col_runner, row_runner) != null) {
                     int value = b.tile(col_runner, row_runner).value();
                     // Step 1: Check the north direction.
-                    if (row_runner > 1 &&
-                            b.tile(col_runner, row_runner - 1) != null &&
-                            b.tile(col_runner, row_runner - 1).value() == value) { has_twin_tiles = true; }
-                    // Step 2: Check the south direction.
-                    else if (row_runner < b.size() - 1 &&
+                    if (row_runner < b.size() - 1 &&
                             b.tile(col_runner, row_runner + 1) != null &&
                             b.tile(col_runner, row_runner + 1).value() == value) { has_twin_tiles = true; }
+                    // Step 2: Check the south direction.
+                    else if (row_runner > 1 &&
+                            b.tile(col_runner, row_runner - 1) != null &&
+                            b.tile(col_runner, row_runner - 1).value() == value) { has_twin_tiles = true; }
                     // Step 3: Check the west direction.
                     else if (col_runner > 1 &&
                             b.tile(col_runner - 1, row_runner) != null &&
