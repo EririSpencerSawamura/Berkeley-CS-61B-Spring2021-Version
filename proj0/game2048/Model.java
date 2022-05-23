@@ -107,15 +107,56 @@ public class Model extends Observable {
      *    and the trailing tile does not.
      * */
 
-    /** A helper method for tilt() to get the row of tile right above the current one.
-     * If there is no tile above, return null.*/
-    public Tile getNorthTile(Tile t) {
-        for (int row_runner = t.row() + 1; row_runner < board.size(); row_runner++) {
-            if (board.tile(t.col(), row_runner) != null) {
-                return board.tile(t.col(), row_runner);
+    public boolean tiltHelper() {
+        boolean changed = false;
+        // Iterate over each colum.
+        for (int col_runner = 0; col_runner < board.size(); col_runner++) {
+            // We set an indicator for the merge process in the last movement.
+            // At the beginning of every colum, the merge indicator is always false.
+            boolean merged = false;
+            Tile last_tile = board.tile(col_runner, board.size() - 1);
+            int last_tile_row = board.size() - 1;
+            // The Iteration starts at the second row from the top.
+            for (int row_runner = board.size() - 2; row_runner > -1; row_runner--) {
+                // We initiate the current tile.
+                Tile curr_tile = board.tile(col_runner, row_runner);
+                if ( curr_tile != null) {
+                    // If there is no tile above curr_tile, move curr_tile to the top of this colum.
+                    if (last_tile == null) {
+                        board.move(col_runner, last_tile_row, curr_tile);
+                        last_tile = board.tile(col_runner, last_tile_row);
+                        changed = true;
+                    }
+                    // If the value of last_tile is different from the value of curr_tile, then they
+                    // should NOT merge, and curr_tile will move to the place right down to last_tile.
+                    else if (last_tile.value() != curr_tile.value()) {
+                        if (last_tile.row() - curr_tile.row() != 1){
+                            changed = true;
+                        }
+                        last_tile_row -= 1;
+                        board.move(col_runner, last_tile_row, curr_tile);
+                        last_tile = board.tile(col_runner, last_tile_row);
+                        merged = false;
+                    }
+                    // If the two tiles have the same value, check the merged indicator:
+                    // If false, the two merge; if true, they do NOT merge, and curr_tile
+                    // will move to the place right down to last_tile.
+                    else if (merged) {
+                        last_tile_row -= 1;
+                        board.move(col_runner, last_tile_row, curr_tile);
+                        last_tile = board.tile(col_runner, last_tile_row);
+                        merged = false;
+                    } else {
+                        board.move(col_runner, last_tile_row, curr_tile);
+                        last_tile = board.tile(col_runner, last_tile_row);
+                        score += last_tile.value();
+                        merged = true;
+                        changed = true;
+                    }
+                }
             }
         }
-        return null;
+        return changed;
     }
 
     public boolean tilt(Side side) {
@@ -126,49 +167,7 @@ public class Model extends Observable {
         // First set the viewing perspective to the direction of the tilt operation.
         // After the tilt operation, set it back to north.
         board.setViewingPerspective(side);
-        // Iterate over each colum.
-        for (int col_runner = 0; col_runner < board.size(); col_runner++) {
-            // We set an indicator for the merge process in the last movement.
-            // At the beginning of every colum, the merge indicator is always false.
-            boolean merged = false;
-            // The Iteration starts at the second row from the top.
-            for (int row_runner = board.size() - 2; row_runner > -1; row_runner--) {
-                // We initiate the current tile.
-                Tile t = board.tile(col_runner, row_runner);
-                if ( t != null) {
-                    Tile s = getNorthTile(t);
-                    // If there is no tile above t, move t to the northern end of this colum.
-                    if (s == null) {
-                        board.move(col_runner, board.size() - 1, t);
-                        merged = false;
-                        changed = true;
-                    }
-                    // If the value of the tile above is different from the value of the
-                    // current tile, then they should NOT merge, and the current tile will
-                    // move to the place right south to the tile above.
-                    else if (s.value() != t.value()) {
-                        board.move(col_runner, s.row() - 1, t);
-                        merged = false;
-                        changed = true;
-                    }
-                    // If the two tiles have the same value, check the merged indicator:
-                    // If false, the two merge; if true, they do NOT merge, and the current tile
-                    // will move to the place right south to the tile above.
-                    else if (merged) {
-                        board.move(col_runner, s.row() - 1, t);
-                        merged = false;
-                        changed = true;
-                    } else {
-                        if (2 * t.value() > score) {
-                            score = 2 * t.value();
-                        }
-                        board.move(col_runner, s.row(), t);
-                        merged = true;
-                        changed = true;
-                    }
-                }
-            }
-        }
+        changed = tiltHelper();
         board.setViewingPerspective(Side.NORTH);
 
         // for the tilt to the Side SIDE. If the board changed, set the
