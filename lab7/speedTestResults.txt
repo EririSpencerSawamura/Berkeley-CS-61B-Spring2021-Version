@@ -1,0 +1,18 @@
+This program inserts random Strings of length L into different types of maps as <String, Integer> pairs.
+Please enter desired length of each string: 5
+
+Enter # strings to insert into the maps: kakas
+Please enter a positive integer: 556
+class bstmap.ULLMap: 0.00 sec
+class bstmap.BSTMap: 0.00 sec
+Java's Built-in TreeMap: 0.00 sec
+Java's Built-in HashMap: 0.00 sec
+Would you like to try more timed-tests? (y/n)y
+
+Enter # strings to insert into the maps: kkssd
+Please enter a positive integer: 1234
+class bstmap.ULLMap: 0.00 sec
+class bstmap.BSTMap: 0.00 sec
+Java's Built-in TreeMap: 0.00 sec
+Java's Built-in HashMap: 0.00 sec
+Would you like to try more timed-tests? (y/n)n
