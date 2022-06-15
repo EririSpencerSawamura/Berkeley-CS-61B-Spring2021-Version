@@ -1,8 +1,9 @@
 # Berkeley CS 61B Spring2021 Version
- My code for the assignments in the Berkeley CS 61B.
- 
+
+ My code for (part of) the assignments in the Berkeley CS 61B.
+
  Finished assignments:
- 
- Labs: 1.
- 
+
+ Labs: 1, 7.
+
  Projects: 0.

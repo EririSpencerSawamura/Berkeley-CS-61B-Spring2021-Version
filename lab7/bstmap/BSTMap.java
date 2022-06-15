@@ -92,6 +92,13 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         return p;
     }
 
+    public void printInOrder() {
+        for (Iterator<K> it = iterator(); it.hasNext(); ) {
+            K key = it.next();
+            System.out.println(get(key));
+        }
+    }
+
     // The following methods are optional.
 
     /** Returns a Set view of the keys contained in this map. Not required for Lab 7.
