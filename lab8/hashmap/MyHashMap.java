@@ -11,6 +11,9 @@ import java.util.Collection;
  */
 public class MyHashMap<K, V> implements Map61B<K, V> {
 
+    private static final int DEFAULT_SIZE = 16;
+    private static final double MAX_LF = 0.75;
+
     /**
      * Protected helper class to store key/value pairs
      * The protected qualifier allows subclass access
@@ -28,11 +31,22 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     /* Instance Variables */
     private Collection<Node>[] buckets;
     // You should probably define some more!
+    private int size;
+
+    private int loadFactor() {
+        return size / buckets.length;
+    }
 
     /** Constructors */
-    public MyHashMap() { }
+    public MyHashMap() {
+        buckets = new Collection[DEFAULT_SIZE];
+        clear();
+    }
 
-    public MyHashMap(int initialSize) { }
+    public MyHashMap(int initialSize) {
+        buckets = new Collection[initialSize];
+        clear();
+    }
 
     /**
      * MyHashMap constructor that creates a backing array of initialSize.
