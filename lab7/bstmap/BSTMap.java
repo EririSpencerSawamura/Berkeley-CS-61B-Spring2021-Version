@@ -136,7 +136,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      *  the specified value. Not required for Lab 7. If you don't implement this,
      *  throw an UnsupportedOperationException. */
     public V remove(K key, V value) {
-        if (containsKey(key) && get(key) == value) {
+        if (containsKey(key) && get(key).equals(value)) {
             return remove(key);
         } else {
             return null;
